@@ -11,7 +11,6 @@ type LoginScreenProps =   NativeStackScreenProps<AuthStackParamList, 'Login'>;
 export default function Login({navigation}: LoginScreenProps) {
   const { appwrite, setIsLoggedIn } = useContext(AppwriteContext);
   const [error, setError] = useState<string>('');
-  const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
@@ -22,21 +21,18 @@ export default function Login({navigation}: LoginScreenProps) {
       const user = {
         email,
         password,
-        name,
       }; 
 
       appwrite.login(user)
       .then((response) => {
         if (response) {
           setIsLoggedIn(true);
-          // SnackBar.show({
-          //   text: 'Login Success',
-          //   duration: SnackBar.LENGTH_SHORT
-          // })
+        } else {
+          setError('Incorrect email or password')
         }
       })
       .catch(e => {
-        setEmail('Incorrect email or password')
+        setError('Incorrect email or password')
       })
     }
    
