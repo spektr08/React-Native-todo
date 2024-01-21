@@ -1,91 +1,83 @@
-import { StyleSheet, Text, View, SafeAreaView, Image} from 'react-native'
+import React, { useContext, useState, useEffect } from 'react';
+import { StyleSheet, SafeAreaView } from 'react-native';
 import { FAB } from '@rneui/themed';
+import { KanbanBoard, ColumnModel, CardModel } from '@intechnity/react-native-kanban-board';
+
 import { AppwriteContext } from '../appwrite/AppwriteContext';
-import { useContext, useEffect, useState } from 'react';
 
 type UserObj = {
-    name: String,
-    email: String,
-}
+  name: string;
+  email: string;
+};
 
-export default function Home() {
-    const [userData, setUserData] = useState<UserObj>();
-    const { appwrite, setIsLoggedIn } = useContext(AppwriteContext);
-    const handleLogout =  () => {
-        appwrite.logout()
-        .then(() => {
-            setIsLoggedIn(false);
-        });
-    }
+const columns = [
+  new ColumnModel('todo', 'To Do', 1),
+  new ColumnModel('inprogress', 'In Progress', 2),
+  new ColumnModel('done', 'Done', 3),
+];
 
-    useEffect(() => {
-        appwrite.getCurrentUser()
-        .then((response) => {
-            if (response) {
-                const user: UserObj = {
-                    name: response.name,
-                    email: response.email
-                }
-                setUserData(user);
-            }
+const Home = () => {
+  const [userData, setUserData] = useState<UserObj>();
+  const [cards, setCards] = useState<CardModel[]>([]);
+  const { appwrite, appwriteData, setIsLoggedIn } = useContext(AppwriteContext);
+
+  const handleLogout = async () => {
+    await appwrite.logout();
+    setIsLoggedIn(false);
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const response = await appwrite.getCurrentUser();
+      if (response) {
+        setUserData({
+          name: response.name,
+          email: response.email,
         });
-    }, [appwrite])
+      }
+    };
+
+    const fetchCards = async () => {
+      const groupedCards = await appwriteData.getTodosGroupedByColumn();
+      setCards(groupedCards);
+    };
+
+    fetchUserData();
+    fetchCards();
+  }, [appwrite, appwriteData]);
+
+  const onCardDragEnd = (srcColumn, destColumn, item, targetIdx) => {
+    // Handle card drag and drop
+  };
+
+  const onCardPress = (item) => {
+    // Handle card press
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-    <View style={styles.welcomeContainer}>
-      <Image
-        source={{
-          uri: 'https://appwrite.io/images-ee/blog/og-private-beta.png',
-          width: 400,
-          height: 300,
-          cache: 'default',
-        }}
-        resizeMode="contain"
+      <KanbanBoard
+        columns={columns}
+        cards={cards}
+        onDragEnd={onCardDragEnd}
+        onCardPress={onCardPress}
       />
-      <Text style={styles.message}>
-        Build Fast. Scale Big. All in One Place.
-      </Text>
-      {userData && (
-        <View style={styles.userContainer}>
-          <Text style={styles.userDetails}>Name: {userData.name}</Text>
-          <Text style={styles.userDetails}>Email: {userData.email}</Text>
-        </View>
-      )}
-    </View>
-    <FAB
-      placement="right"
-      color="#f02e65"
-      size="large"
-      title="Logout"
-      icon={{name: 'logout', color: '#FFFFFF'}}
-      onPress={handleLogout}
-    />
-  </SafeAreaView>
-  )
-}
+      <FAB
+        placement="right"
+        color="#f02e65"
+        size="large"
+        title="Logout"
+        icon={{ name: 'logout', color: '#FFFFFF' }}
+        onPress={handleLogout}
+      />
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: '#0B0D32',
-    },
-    welcomeContainer: {
-      padding: 12,
-  
-      flex: 1,
-      alignItems: 'center',
-    },
-    message: {
-      fontSize: 26,
-      fontWeight: '500',
-      color: '#FFFFFF',
-    },
-    userContainer: {
-      marginTop: 24,
-    },
-    userDetails: {
-      fontSize: 20,
-      color: '#FFFFFF',
-    },
-  });
-  
+  container: {
+    flex: 1,
+  },
+});
+
+export default Home;

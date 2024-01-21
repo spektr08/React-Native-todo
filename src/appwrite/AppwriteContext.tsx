@@ -1,15 +1,18 @@
 import { View, Text, StyleSheet } from 'react-native'
 import Appwrite from './service'
+import AppwriteData from './dataBase'
 import { FC, PropsWithChildren, createContext, useContext, useState } from 'react'
 
 type AppContexType = {
     appwrite: Appwrite;
+    appwriteData: AppwriteData
     isLoggedIn: boolean;
     setIsLoggedIn: (isLoggedIn: boolean) => void
 } 
 
 export const AppwriteContext = createContext<AppContexType>({
-     appwrite: new Appwrite(),
+    appwrite: new Appwrite(),
+    appwriteData: new AppwriteData(),
     isLoggedIn: false,
     setIsLoggedIn: () => {}
 });
@@ -18,6 +21,7 @@ export const AppwriteProvider: FC<PropsWithChildren> = ({children}) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const defaultValue = {
         appwrite: new Appwrite(),
+        appwriteData: new AppwriteData(),
         isLoggedIn,
         setIsLoggedIn
     };

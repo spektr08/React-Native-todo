@@ -1,8 +1,5 @@
-import { ID, Client, Account} from 'appwrite';
-import SnackBar from 'react-native-snackbar'
-
-
-const appwriteClient = new Client();
+import { ID } from 'appwrite';
+import { account } from './client';
 
 type CreateUserAccount = {
     email: string;
@@ -14,18 +11,12 @@ type LoginUserAccount = {
     email: string;
     password: string;
 }
-const project_id = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID;
-const endpoint = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT;
 
 class AppwriteService {
     account;
 
     constructor() {
-        appwriteClient
-            .setEndpoint(endpoint)
-            .setProject(project_id);
-
-        this.account = new Account(appwriteClient);    
+        this.account = account;    
     }
 
     async createAccount({email, password, name} : CreateUserAccount) {
@@ -42,10 +33,6 @@ class AppwriteService {
                 return userAccount;
             }
         } catch (error) {
-            // SnackBar.show({
-            //     text: String(error),
-            //     duration: LENGTH_LONG
-            // });
             console.log("Appwrite service :: createAccunt() :: " + error);
         }
     }
@@ -54,10 +41,6 @@ class AppwriteService {
         try {
             return await this.account.createEmailSession(email, password);        
         } catch(error) {
-            // SnackBar.show({
-            //     text: String(error),
-            //     duration: SnackBar.LENGTH_LONG
-            // });
             console.log("Appwrite service :: login() :: " + error);
         }
     }
@@ -67,10 +50,6 @@ class AppwriteService {
         try {
             return await this.account.get();
         } catch(error) {
-            // SnackBar.show({
-            //     text: String(error),
-            //     duration: SnackBar.LENGTH_LONG
-            // });
             console.log("Appwrite service :: getCurrentUser() :: " + error);
         }
     }
@@ -79,10 +58,6 @@ class AppwriteService {
         try {
             return await this.account.deleteSession('current');
         } catch(error) {
-            // SnackBar.show({
-            //     text: String(error),
-            //     duration: SnackBar.LENGTH_LONG
-            // });
             console.log("Appwrite service :: logout() :: " + error);
         }
     }
