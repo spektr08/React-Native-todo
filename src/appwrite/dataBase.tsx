@@ -1,5 +1,5 @@
 import { databases } from './client';
-import { KanbanBoard, ColumnModel, CardModel } from '@intechnity/react-native-kanban-board';
+import { CardModel } from '@intechnity/react-native-kanban-board';
 
 
 class AppwriteServiceData {
@@ -25,7 +25,7 @@ class AppwriteServiceData {
         ));
     });
     return columns;
-  };
+  }
 }
 
 export default AppwriteServiceData;

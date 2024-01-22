@@ -1,28 +1,48 @@
 import { StyleSheet, Text, TouchableOpacity, View, TextInput, Pressable, Image } from 'react-native'
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'; 
+import { Ionicons} from '@expo/vector-icons'; 
+import { AppwriteContext } from '../appwrite/AppwriteContext';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../routes/AppStack';
 import { styles } from '../../styles';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import RadioGroup from '../components/RadioGroup';
 import { Entypo } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker"; 
+import { CardModel } from '@intechnity/react-native-kanban-board';
+import uploadImage from '../appwrite/uploadImage';
 
 export type NavigationProp = NativeStackNavigationProp<
   AppStackParamList,
   "AddCard"
 >;
+interface ImageLoad {
+  bucketId: string;
+  fileId: string;
+}
 
 const AddCard = () => {
     const [title, setTitle] = useState<string>('');
     const [error, setError] = useState<string>('');
     const navigation = useNavigation<NavigationProp>();
-    const [file, setFile] = useState(null); 
+    const [image, setImage] = useState(null); 
+    const { cards, appwriteData, setCards } = useContext(AppwriteContext);
 
-    const handleLogin = () => {
-       
-       
+    const handleAdd = async () => {
+      let file: ImageLoad | undefined;
+      console.log('add');
+      //setCards([]);
+      if(image) {
+        const fileUploaded = await uploadImage(image);
+        console.log('fileUploaded');
+        console.log(fileUploaded);
+        if(fileUploaded) {
+          file = {
+            bucketId: fileUploaded.bucketId,
+            fileId: fileUploaded.$id
+          };
+        }
+      }
     }
 
     const pickImage = async () => { 
@@ -35,7 +55,7 @@ const AddCard = () => {
             const result: ImagePicker.ImagePickerResult = 
                 await ImagePicker.launchImageLibraryAsync(); 
             if (!result.canceled) { 
-                setFile(result.assets[0].uri); 
+                setImage(result.assets[0]); 
                 setError(null); 
             } 
         } 
@@ -47,16 +67,16 @@ const AddCard = () => {
         <Text style={styles.appName}>Add Todo</Text>
         <TextInput
           value={title}
-          onChangeText={text => setTitle(title)}
+          onChangeText={text => setTitle(text)}
           placeholderTextColor={'#AEAEAE'}
           placeholder="Title"
           style={styles.input}
         />
         <RadioGroup />
 
-        {file ? ( 
+        {image ? ( 
             <View style={stylesComponent.imageContainer}> 
-                <Image source={{ uri: file }} 
+                <Image source={{ uri: image.uri }} 
                     style={stylesComponent.image} /> 
             </View> 
         ) : ( 
@@ -79,7 +99,7 @@ const AddCard = () => {
             </View>    
         </TouchableOpacity> 
         <Pressable
-          onPress={handleLogin}
+          onPress={handleAdd}
           style={[styles.btn, {marginTop: error ? 10 : 20}]}>
           <Text style={styles.btnText}>Add</Text>
         </Pressable>

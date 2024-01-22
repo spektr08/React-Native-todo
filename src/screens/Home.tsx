@@ -28,8 +28,8 @@ export type NavigationProp = NativeStackNavigationProp<
 const Home = () => {
   const navigation = useNavigation<NavigationProp>();
   const [userData, setUserData] = useState<UserObj>();
-  const [cards, setCards] = useState<CardModel[]>([]);
-  const { appwrite, appwriteData, setIsLoggedIn } = useContext(AppwriteContext);
+  // const [cards, setCards] = useState<CardModel[]>([]);
+  const { appwrite, appwriteData, setIsLoggedIn, cards, setCards } = useContext(AppwriteContext);
 
   const handleLogout = async () => {
     await appwrite.logout();
@@ -37,25 +37,26 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const response = await appwrite.getCurrentUser();
-      if (response) {
-        setUserData({
-          name: response.name,
-          email: response.email,
-        });
-      }
-    };
-
+    // const fetchUserData = async () => {
+    //   const response = await appwrite.getCurrentUser();
+    //   if (response) {
+    //     setUserData({
+    //       name: response.name,
+    //       email: response.email,
+    //     });
+    //   }
+    // };
     const fetchCards = async () => {
       const groupedCards = await appwriteData.getTodosGroupedByColumn();
       setCards(groupedCards);
     };
-    
-
-    fetchUserData();
+    //fetchUserData();
     fetchCards();
-  }, [appwrite, appwriteData]);
+  },[]);
+
+  useEffect(() => {
+    setCards(cards);
+  }, [cards]);
 
   const addNewCard = () => {
     navigation.navigate('AddCard');

@@ -1,21 +1,25 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { AppwriteContext } from '../appwrite/AppwriteContext';
 
 type RadioType = {
     value: string,
     label: string
 }
-function activeColor(value: string) {
+function activeColor(value: string) : string {
    return styles[value];
 }
 const RadioGroup = () => {
-  const [plan, setPlan] = useState('startup');
+  const { type, setType } = useContext(AppwriteContext);
+  const handleType = (value: string) => {
+    setType(value);
+  }
 
   const RadioButton = ({value, label}: RadioType) => {
     return (
         <TouchableOpacity
-        style={[styles.option, plan === value && activeColor(value)]}
-        onPress={() => setPlan(value)}
+        style={[styles.option, type === value && activeColor(value)]}
+        onPress={() => handleType(value)}
       >
         <Text>{label}</Text>
       </TouchableOpacity>

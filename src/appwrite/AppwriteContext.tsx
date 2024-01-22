@@ -1,29 +1,43 @@
-import { View, Text, StyleSheet } from 'react-native'
 import Appwrite from './service'
 import AppwriteData from './dataBase'
 import { FC, PropsWithChildren, createContext, useContext, useState } from 'react'
+import { CardModel } from '@intechnity/react-native-kanban-board';
 
 type AppContexType = {
     appwrite: Appwrite;
     appwriteData: AppwriteData
     isLoggedIn: boolean;
-    setIsLoggedIn: (isLoggedIn: boolean) => void
+    type: string,
+    cards: Array<CardModel>;
+    setIsLoggedIn: (isLoggedIn: boolean) => void;
+    setCards: (columns: Array<CardModel>) => void;
+    setType: (type: string) => void
 } 
 
 export const AppwriteContext = createContext<AppContexType>({
     appwrite: new Appwrite(),
     appwriteData: new AppwriteData(),
     isLoggedIn: false,
-    setIsLoggedIn: () => {}
+    cards: [],
+    type: 'todo',
+    setIsLoggedIn: () => {},
+    setCards: () => {},
+    setType: () => {}
 });
 
 export const AppwriteProvider: FC<PropsWithChildren> = ({children}) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [cards, setCards] = useState([]);
+    const [type, setType] = useState('todo');
     const defaultValue = {
         appwrite: new Appwrite(),
         appwriteData: new AppwriteData(),
+        cards,
+        type,
         isLoggedIn,
-        setIsLoggedIn
+        setIsLoggedIn,
+        setCards,
+        setType
     };
     return (
         <AppwriteContext.Provider value={defaultValue}>
