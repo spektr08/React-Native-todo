@@ -1,9 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import {SafeAreaView, View, ViewStyle } from 'react-native';
 import { FAB } from '@rneui/themed';
 import { KanbanBoard, ColumnModel, CardModel } from '@intechnity/react-native-kanban-board';
-
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppwriteContext } from '../appwrite/AppwriteContext';
+import { AppStackParamList } from '../routes/AppStack';
+import { useNavigation } from '@react-navigation/native';
+import { styles } from '../../styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type UserObj = {
   name: string;
@@ -16,7 +20,13 @@ const columns = [
   new ColumnModel('done', 'Done', 3),
 ];
 
+export type NavigationProp = NativeStackNavigationProp<
+  AppStackParamList,
+  "Home"
+>;
+
 const Home = () => {
+  const navigation = useNavigation<NavigationProp>();
   const [userData, setUserData] = useState<UserObj>();
   const [cards, setCards] = useState<CardModel[]>([]);
   const { appwrite, appwriteData, setIsLoggedIn } = useContext(AppwriteContext);
@@ -41,26 +51,47 @@ const Home = () => {
       const groupedCards = await appwriteData.getTodosGroupedByColumn();
       setCards(groupedCards);
     };
+    
 
     fetchUserData();
     fetchCards();
   }, [appwrite, appwriteData]);
 
+  const addNewCard = () => {
+    navigation.navigate('AddCard');
+  }
+
   const onCardDragEnd = (srcColumn, destColumn, item, targetIdx) => {
     // Handle card drag and drop
   };
+  const renderCard = (model) => {
+    return (
+      <View>
 
+      </View>
+    )
+  };
   const onCardPress = (item) => {
-    // Handle card press
   };
 
   return (
+    <LinearGradient
+    colors={['#80b5ff', 'transparent']}
+    style={styles.background}
+    >
     <SafeAreaView style={styles.container}>
+      <View >
+          <FAB 
+          color="#656565"
+          onPress={addNewCard} 
+          title='Add new card' />
+        </View>
       <KanbanBoard
         columns={columns}
         cards={cards}
         onDragEnd={onCardDragEnd}
         onCardPress={onCardPress}
+        //renderCardContent={renderCard}
       />
       <FAB
         placement="right"
@@ -71,13 +102,7 @@ const Home = () => {
         onPress={handleLogout}
       />
     </SafeAreaView>
+    </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
 export default Home;

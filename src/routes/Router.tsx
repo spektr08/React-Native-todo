@@ -1,7 +1,5 @@
 import { NavigationContainer } from '@react-navigation/native'
-
 import { AppwriteContext } from '../appwrite/AppwriteContext';
-
 import { AppStack } from './AppStack';
 import { AuthStack } from './AuthStack';
 import { useContext, useEffect, useState } from 'react';
@@ -28,8 +26,8 @@ export const Router = () => {
     }
 
   return (
-    <NavigationContainer>
-      {isLoggedIn ? <AppStack /> : <AuthStack/> }
-    </NavigationContainer>
+      <NavigationContainer>
+        {isLoggedIn ? <AppStack /> : <AuthStack/> }
+      </NavigationContainer>
   )
 }
