@@ -8,11 +8,7 @@ import { AppStackParamList } from '../routes/AppStack';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../../styles';
 import { LinearGradient } from 'expo-linear-gradient';
-
-type UserObj = {
-  name: string;
-  email: string;
-};
+import { UserObj } from '../appwrite/AppwriteContext';
 
 const columns = [
   new ColumnModel('todo', 'To Do', 1),
@@ -27,9 +23,8 @@ export type NavigationProp = NativeStackNavigationProp<
 
 const Home = () => {
   const navigation = useNavigation<NavigationProp>();
-  const [userData, setUserData] = useState<UserObj>();
   // const [cards, setCards] = useState<CardModel[]>([]);
-  const { appwrite, appwriteData, setIsLoggedIn, cards, setCards } = useContext(AppwriteContext);
+  const { appwrite, appwriteData, setIsLoggedIn, cards, setCards, setUser, user } = useContext(AppwriteContext);
 
   const handleLogout = async () => {
     await appwrite.logout();
@@ -37,20 +32,19 @@ const Home = () => {
   };
 
   useEffect(() => {
-    // const fetchUserData = async () => {
-    //   const response = await appwrite.getCurrentUser();
-    //   if (response) {
-    //     setUserData({
-    //       name: response.name,
-    //       email: response.email,
-    //     });
-    //   }
-    // };
     const fetchCards = async () => {
-      const groupedCards = await appwriteData.getTodosGroupedByColumn();
-      setCards(groupedCards);
+      const response = await appwrite.getCurrentUser();
+      if (response) {
+        const currentUser : UserObj = {
+          id: response.$id,
+          name: response.name,
+          email: response.email
+        }
+        setUser(currentUser);
+        const groupedCards = await appwriteData.getTodosGroupedByColumn(currentUser.id);
+        setCards(groupedCards);
+      }
     };
-    //fetchUserData();
     fetchCards();
   },[]);
 

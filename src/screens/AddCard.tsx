@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../routes/AppStack';
 import { styles } from '../../styles';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import RadioGroup from '../components/RadioGroup';
 import { Entypo } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker"; 
@@ -16,7 +16,7 @@ export type NavigationProp = NativeStackNavigationProp<
   AppStackParamList,
   "AddCard"
 >;
-interface ImageLoad {
+export interface ImageLoad {
   bucketId: string;
   fileId: string;
 }
@@ -26,16 +26,15 @@ const AddCard = () => {
     const [error, setError] = useState<string>('');
     const navigation = useNavigation<NavigationProp>();
     const [image, setImage] = useState(null); 
-    const { cards, appwriteData, setCards } = useContext(AppwriteContext);
+    const { cards, appwriteData, setCards, type, user } = useContext(AppwriteContext);
 
     const handleAdd = async () => {
       let file: ImageLoad | undefined;
-      console.log('add');
-      //setCards([]);
+      if(title == '') {
+        return true;
+      }
       if(image) {
         const fileUploaded = await uploadImage(image);
-        console.log('fileUploaded');
-        console.log(fileUploaded);
         if(fileUploaded) {
           file = {
             bucketId: fileUploaded.bucketId,
@@ -43,6 +42,12 @@ const AddCard = () => {
           };
         }
       }
+
+      const newCard = await  appwriteData.addTask(title, type, user.id, file);
+      let newArr = [...cards]; // copying the old datas array
+      newArr.push(newCard);
+      setCards(newArr);
+      navigation.goBack();
     }
 
     const pickImage = async () => { 
@@ -56,7 +61,7 @@ const AddCard = () => {
                 await ImagePicker.launchImageLibraryAsync(); 
             if (!result.canceled) { 
                 setImage(result.assets[0]); 
-                setError(null); 
+                setError(''); 
             } 
         } 
     }; 
