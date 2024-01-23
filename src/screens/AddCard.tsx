@@ -11,6 +11,7 @@ import { Entypo } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker"; 
 import { CardModel } from '@intechnity/react-native-kanban-board';
 import uploadImage from '../appwrite/uploadImage';
+import getUrl from '../appwrite/getUrl';
 
 export type NavigationProp = NativeStackNavigationProp<
   AppStackParamList,
@@ -19,6 +20,7 @@ export type NavigationProp = NativeStackNavigationProp<
 export interface ImageLoad {
   bucketId: string;
   fileId: string;
+  url: string;
 }
 
 const AddCard = () => {
@@ -35,10 +37,12 @@ const AddCard = () => {
       }
       if(image) {
         const fileUploaded = await uploadImage(image);
+        const uploadedUrl = await getUrl(fileUploaded);
         if(fileUploaded) {
           file = {
             bucketId: fileUploaded.bucketId,
-            fileId: fileUploaded.$id
+            fileId: fileUploaded.$id,
+            url: uploadedUrl
           };
         }
       }

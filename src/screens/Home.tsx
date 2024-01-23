@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import {SafeAreaView, View, ViewStyle } from 'react-native';
+import {SafeAreaView, View, Text, StyleSheet, Image } from 'react-native';
 import { FAB } from '@rneui/themed';
 import { KanbanBoard, ColumnModel, CardModel } from '@intechnity/react-native-kanban-board';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,7 +23,6 @@ export type NavigationProp = NativeStackNavigationProp<
 
 const Home = () => {
   const navigation = useNavigation<NavigationProp>();
-  // const [cards, setCards] = useState<CardModel[]>([]);
   const { appwrite, appwriteData, setIsLoggedIn, cards, setCards, setUser, user } = useContext(AppwriteContext);
 
   const handleLogout = async () => {
@@ -57,15 +56,29 @@ const Home = () => {
   }
 
   const onCardDragEnd = (srcColumn, destColumn, item, targetIdx) => {
-    // Handle card drag and drop
+    appwriteData.updateTodoInDB(item.id, destColumn.id);
   };
-  const renderCard = (model) => {
+  const renderCard =  (model) => {
+    // console.log(model.title,model.columnId, model.description);
     return (
-      <View>
-
-      </View>
+      <React.Fragment>
+        <View style={stylesBoard.cardHeaderContainer}>
+          <View style={stylesBoard.cardTitleContainer}>
+            <Text style={[stylesBoard.cardTitleText]}>{model.title}</Text>
+          </View>
+          <Text style={[stylesBoard.cardSubtitleText]}>{model.subtitle}</Text>
+        </View>
+        {model.description != '' && ( 
+            <View style={stylesBoard.imageContainer}> 
+                <Image source={{ uri: model.description }} 
+                    style={stylesBoard.image} /> 
+            </View> 
+        )} 
+       
+      </React.Fragment>
     )
   };
+
   const onCardPress = (item) => {
   };
 
@@ -86,7 +99,7 @@ const Home = () => {
         cards={cards}
         onDragEnd={onCardDragEnd}
         onCardPress={onCardPress}
-        //renderCardContent={renderCard}
+        renderCardContent={renderCard}
       />
       <FAB
         placement="right"
@@ -100,4 +113,49 @@ const Home = () => {
     </LinearGradient>
   );
 };
+
+const stylesBoard = StyleSheet.create({
+  container: {
+    borderColor: '#E3E3E3',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    marginBottom: 16,
+    elevation: 3
+  },
+  cardHeaderContainer: {
+    marginBottom: 16
+  },
+  cardTitleContainer: {
+    marginBottom: 8
+  },
+  cardTitleText: {
+    fontWeight: 'bold',
+  },
+  cardSubtitleText: {
+  },
+  cardContentContainer: {
+    marginBottom: 16
+  },
+  cardContentText: {
+    fontWeight: 'bold'
+  },
+  image: { 
+    alignSelf: 'center',
+    width: 200, 
+    height: 200, 
+    borderRadius: 8, 
+  }, 
+  imageContainer: { 
+    marginTop: 10,
+    borderRadius: 8, 
+    marginBottom: 16, 
+    shadowColor: "#000000", 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.4, 
+    shadowRadius: 4, 
+    elevation: 5, 
+  }, 
+});
 export default Home;
